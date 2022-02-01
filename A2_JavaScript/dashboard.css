@@ -1,0 +1,224 @@
+/* Header/footer styling */
+
+.banner {
+	background-color: #bae3c8;
+	height: 75px;
+	width: 100%;
+	padding: 10px;
+}
+
+/* general page styling */
+
+body {
+	font-family: Helvetica;
+	font-weight: 300
+}
+
+h1, h2, h3, h4, h5 {
+	text-align: center;
+}
+
+h2 {
+	background-color: #f0f2f1;
+	padding: 10px;
+	width: 250px;
+	text-transform: uppercase;
+}
+
+.h2flex-container {
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	height: 150px;
+	margin: 60px 0px;
+	padding-top: 1px;
+	box-shadow: 2px 2px 30px;
+}
+
+#container {
+	width: 70%;
+	margin: auto;
+}
+
+/* vaccine section styling */
+
+#vaxh2box {
+	background: url('./images/vaccine.jpeg') no-repeat center;
+	background-size: cover;
+}
+
+.form-flex {
+	display: flex;
+	justify-content: space-around;
+	margin: 30px;
+}
+
+.fields {
+	background-color: #f0faf0;
+	padding: 20px 0px 20px 0px;
+	margin: 50px 20px;
+}
+
+#emphasis {
+	text-decoration: underline;
+}
+
+#weekly {
+	display: flex;
+	justify-content: space-around;
+	flex-wrap: wrap;
+}
+	
+#bigNum{
+	font-size: 20px;
+	margin-left: 20px;
+	color: #5d6e5c;
+	font-weight: 700;
+}
+
+#totalvax2021 {
+	margin: 40px 0px 20px 0px;
+	text-align: center;
+	line-height: 40px;
+}	
+
+.figure {
+	flex: auto;
+	max-width: 100px;
+	line-height: 50px;
+	padding-left: 20px;
+	border-left: dashed 1px grey;
+}
+
+.figure:first-child {
+	border-left: solid 3px grey;
+	font-weight: 900;
+}
+
+.num {
+	color: #5d6e5c;
+	font-size: 25px;
+}
+
+.tables {
+	margin: 50px 50px 10px 50px;
+	text-align: center;
+	padding: 15px;
+	box-shadow: 1px 1px 10px 2px #bae3c8;
+}
+
+#metricButton {
+	text-align: center;
+}
+
+.vaxTables {
+	border: none;
+	padding: 10px;
+	width: 60%;
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.vaxTables td {
+	border: none;
+	border-bottom: dashed 1px;
+	padding: 5px;
+}
+
+.vaxTables th {
+	border: none;
+	border-bottom: 1px solid;
+	line-height: 50px;
+}
+
+.button {
+	background-color: #bae3c8;
+	border: none;
+	font-size: 15px;
+	padding: 5px 8px;
+	margin-top: 10px;
+	border-radius: 5px;
+}
+
+/* county section styling */
+
+#countyh2box {
+	background: url('./images/counties.jpeg') no-repeat center;
+	background-size: cover;
+}
+
+#basicInfo {
+	margin: 30px 0px 50px 0px;
+	display: flex;
+	justify-content: space-around;
+}
+
+.rate {
+	width: 30%;
+	line-height: 45px;
+	background-color: #daedda;
+	box-shadow: 0px 0px 5px 3px #daedda;
+	padding: 10px;
+}
+
+.rateCountyName {
+	font-size: 20px;
+	color: #5d6e5c;
+}
+
+.rate .num {
+	padding-left: 30px;
+	font-weight: 900;
+}
+
+#dropSelection p {
+	text-align: center;
+	padding-top: 10px;
+}
+
+#selectCounty {
+	border: solid 1px grey;
+	background-color: #f0faf0;
+	font-size: 15px;
+	margin-right: 20px;
+	padding: 5px
+}
+
+#countyData {
+	border-collapse: collapse;
+	margin: auto;
+	width: 60%;
+	text-align: left;
+}
+
+#countyData th{
+	font-size: 15px;
+	padding: 5px;
+	border-bottom: solid 1px grey;
+	border-right: solid 1px grey;
+	border-left: solid 1px grey;
+}
+
+#countyData th:first-child {
+	border-left: none;
+}
+
+#countyData th:last-child {
+	border-right: none;
+}
+
+#countyData td{
+	width: 10%;
+	padding: 5px;
+	border-right: solid 1px grey;
+	border-left: solid 1px grey;
+}
+
+#countyData td:first-child {
+	border-left: none;
+}
+
+#countyData td:last-child {
+	border-right: none;
+}

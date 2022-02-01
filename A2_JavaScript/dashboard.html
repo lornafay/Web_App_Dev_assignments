@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<link rel="stylesheet" type="text/css" href="dashboard.css">
+	
+	<script>
+		
+		// VACCINATION DATA VARIABLES
+		
+		// objVax stores the parsed JSON vaccination data
+		var objVax;
+		// stores the array of weeks
+		var vaxArray;
+		
+		// number of weeks on record
+		var weeksRecorded = 0;
+		
+		// week number entered into search bar
+		var weekReq;
+		
+		// counter to use in function to let most recent week be shown by defualt
+		var count = 1;
+		
+		// initialise table variables
+		var tableTot;
+		var tableProp;
+		
+		// variables to be set when JSON read --> original code by Prof David Coyle
+		var vaxParsed = false;
+		
+		// booleans to be set true/false to switch between table formats
+		var totalDisplayed;
+		var propDisplayed;
+		
+		
+		// COUNTY DATA VARIABLES 
+		
+		// objCounty stores the parsed JSON county data
+		var objCounty;
+		
+		var countyParsed = false;
+		
+		// stores the array of counties
+		var countyArray;
+		
+		var countyTable = `<table id="countyData"><tr><th>County</th><th>Pop.</th><th>Confirmed COVID cases</th><th>Cases/100k</th></tr>`;
+		
+		// empty array to use in createDropDownMenu function
+		var filterArray = [];
+		
+		// counter used to limit table size later
+		var rowCount = 0;
+		
+		
+		// VACCINATION STATS FUNCTIONS
+		
+		function updateForWeek() {
+		// wrapper function containing nested functions to update the individual vaccine dashboard sections
+		// calls all functions at the end
+		// triggered by clicking submit button
+			
+			// if it's the first time function is being called (i.e. just after the data has been read), we want the most recent week
+			if (count == 1) {
+				weekReq = weeksRecorded;
+			// subsequent function calls will use the week input by user to extract data
+			} else {
+				weekReq = parseInt(document.getElementById("weekRequested").value);
+			}
+			
+			function weeklyInfo() {
+				var weekHTML;
+				
+				// retrieve the index of the week number --> we do not have to -1 because the first index location isn't 2021 anyway
+				var weekInfo = vaxArray[weekReq].attributes;
+				var weekTotal = weekInfo.TotalweeklyVaccines;
+				var weekModerna = weekInfo.Moderna;
+				var weekPfizer = weekInfo.Pfizer;
+				var weekJanssen = weekInfo.Janssen;
+				var weekAZ = weekInfo.AstraZeneca;
+
+				weekHTML =  "<span class='figure' id='mainFigure'><p>Total:<br><span class='num'>" + weekTotal + "</span></p></span><span class='figure'><p>Moderna:<br><span class='num'>" + weekModerna + "</span></p></span><span class='figure'><p>Pfizer:<br><span class='num'>" + weekPfizer + "</span></p></span><span class='figure'><p>Janssen:<br><span class='num'>" + weekJanssen + "</span></p></span><span class='figure'><p>AstraZeneca:<br><span class='num'>" + weekAZ + "</span></p>";
+				
+				document.getElementById("showing").innerHTML = "Currently showing vaccine data for <span id='emphasis'> Week " + weekReq + " </span> of 2021";
+
+				document.getElementById("weekly").innerHTML = weekHTML;
+			}
+
+			function totalVax2021() {
+				// function to get an up-to-date measure of vaccines administered this year so far
+				
+				var totalNum = 0;
+				// begin at 1 because features[0] is the last week of 2020 which we don't want to include 
+				for (var i = 1; i < weekReq + 1; i++) {
+					var weeklyNum = vaxArray[i].attributes.TotalweeklyVaccines;
+					totalNum += weeklyNum;
+				}
+				document.getElementById("totalvax2021").innerHTML = "Total vaccines administered in 2021 to this point: <span id='bigNum'>" + totalNum + "</span><br>Vaccines administered in the past week:";
+			}
+
+			function displayVaxTable() {
+
+				var weekNow = vaxArray[weekReq].attributes;
+
+				// assign the required age group data to variables
+				var total10to19 = weekNow.FullyCum_Age10to19;
+				var total20to29 = weekNow.FullyCum_Age20to29;
+				var total30to39 = weekNow.FullyCum_Age30to39;
+				var total40to49 = weekNow.FullyCum_Age40to49;
+				var total50to59 = weekNow.FullyCum_Age50to59;
+				var total60to69 = weekNow.FullyCum_Age60to69;
+				var total70to79 = weekNow.FullyCum_Age70to79;
+				var total80 = weekNow.FullyCum_80_;
+
+				tableTot = `<table class="vaxTables"  id="tableTot" border = 1><caption>Total number of people fully vaccinated per age group to date</caption>
+										<tr><th>Age Group</th><th>Total vaccinated</tr>
+										<tr><td>10 - 19</td><td>` + total10to19 + `</td></tr>
+										<tr><td>20 - 29</td><td>` + total20to29 + `</td></tr>
+										<tr><td>30 - 39</td><td>` + total30to39 + `</td></tr>
+										<tr><td>40 - 49</td><td>` + total40to49 + `</td></tr>
+										<tr><td>50 - 59</td><td>` + total50to59 + `</td></tr>
+										<tr><td>60 - 69</td><td>` + total60to69 + `</td></tr>
+										<tr><td>70 - 79</td><td>` + total70to79 + `</td></tr>
+										<tr><td>80 +</td><td>` + total80 + `</td></tr>
+										</table>`;
+				
+				totalDisplayed = true;
+
+				// get proportions correct to two decimal places
+				var prop10to19 = ((weekNow.FullyPer_Age10to19) * 100).toFixed(2);
+				var prop20to29 = ((weekNow.FullyPer_Age20to29) * 100).toFixed(2);
+				var prop30to39 = ((weekNow.FullyPer_Age30to39) * 100).toFixed(2);
+				var prop40to49 = ((weekNow.FullyPer_Age40to49) * 100).toFixed(2);
+				var prop50to59 = ((weekNow.FullyPer_Age50to59) * 100).toFixed(2);
+				var prop60to69 = ((weekNow.FullyPer_Age60to69) * 100).toFixed(2);
+				var prop70to79 = ((weekNow.FullyPer_Age70to79) * 100).toFixed(2);
+				var prop80 = ((weekNow.FullyPer_80_) * 100).toFixed(2);
+
+				tableProp = `<table class="vaxTables"  id="tableProp" border = 1><caption>Proportion of people fully vaccinated per age group to date</caption>
+										<tr><th>Age Group</th><th>Proportion vaccinated</tr>
+										<tr><td>10 - 19</td><td>` + prop10to19 + `%</td></tr>
+										<tr><td>20 - 29</td><td>` + prop20to29 + `%</td></tr>
+										<tr><td>30 - 39</td><td>` + prop30to39 + `%</td></tr>
+										<tr><td>40 - 49</td><td>` + prop40to49 + `%</td></tr>
+										<tr><td>50 - 59</td><td>` + prop50to59 + `%</td></tr>
+										<tr><td>60 - 69</td><td>` + prop60to69 + `%</td></tr>
+										<tr><td>70 - 79</td><td>` + prop70to79 + `%</td></tr>
+										<tr><td>80 +</td><td>` + prop80 + `%</td></tr>
+										</table>`;
+				
+				propDisplayed = false;
+
+				document.getElementById("table").innerHTML = tableTot;
+				
+				document.getElementById("metricButton").innerHTML = `<button class='button' id='switchTable' type="button" onclick="changeTable();">Show proportion</button>`;
+			}
+			
+			// if a valid week is entered
+			if (weekReq <= weeksRecorded && weekReq >= 1) {
+				// call the functions
+				weeklyInfo(); 
+				totalVax2021();
+				displayVaxTable();
+				// increment count to avoid the most recent week being called by default unless page is reloaded
+				count += 1;
+			} else {
+				var alertMsg = "Data only available for between 1 and " + weeksRecorded + " weeks.";
+				alert(alertMsg);
+			}
+
+		}
+		
+		
+		// function to change the table metric
+		function changeTable() {
+			
+			var content = document.getElementById("table");
+			var switchTab = document.getElementById("switchTable");
+			
+			// if total vaccinated table is showing
+			if (totalDisplayed == true){
+				// show other table
+				content.innerHTML = tableProp;
+				switchTab.innerHTML = "Show total";
+				totalDisplayed = false;
+				propDisplayed = true;
+			
+			} else {
+				content.innerHTML = tableTot;
+				switchTab.innerHTML = "Show proportion";
+				totalDisplayed = true;
+				propDisplayed = false;
+			}
+		}
+		
+		// COUNTY STATS FUNCTIONS
+		
+		
+		// function to create array of list of counties available from data and remove the duplicates
+		function createDropDownMenu() {
+			
+			// STEP 1: FILTER JSON ARRAY TO REMOVE ANY DUPLICATES AND CREATE NEW ARRAY WITH LEFTOVERS
+			
+			for (var i=0; i < countyArray.length; i++){
+				// assign CountyName attribute to a variable
+				let name = countyArray[i].attributes.CountyName;
+				// if the name is already in filterArray skip iteration
+				if (filterArray.includes(name)) {
+					continue;
+				// if the name is not yet in filterArray, add it
+				} else {
+					filterArray.push(name);
+				}
+			}
+			
+			// STEP 2: CREATE DROPDOWN MENUS USING PREVIOUSLY MADE ARRAY AS OPTIONS 
+			
+			// create the option HTML
+			var options;
+			for (var i=0; i<filterArray.length; i++) {
+				let couName = filterArray[i];
+				options += '<option value="' + couName + '">' + couName + "</option>";
+			}
+
+			// create the dropdown menus and integrate the option list to each
+			// each select tag has an onchange event that calls the countyInfo function for the selected option
+			var dropHTML = `<select onchange="countyInfo(this.value);" id="selectCounty" name="counties"><div id="dropContent"><option>County</option>`;
+
+			dropHTML += options + "</div></select>";
+
+			// STEP 3: PLACE MENUS INTO HTML BODY
+			
+			document.getElementById("drop").innerHTML = dropHTML;
+			
+		}
+		
+		// function to retrieve the info for each county selected
+		function countyInfo(county) {
+			
+			var population;
+			var confirmedCases;
+			var cases100K;
+		
+			for (var j=0; j<countyArray.length; j++) {
+				var checkCounty = countyArray[j].attributes.CountyName;
+				if (county == checkCounty) {
+					population = countyArray[j].attributes.PopulationCensus16;
+					confirmedCases = countyArray[j].attributes.ConfirmedCovidCases;
+					cases100K = countyArray[j].attributes.PopulationProportionCovidCases;
+					// sticking with cases per 100k as it is more of a benchmark for measuring COVID cases than population proportional cases
+				}
+			}
+			
+			// function to display the selected county data
+			function displayCountyTable() {
+				if (rowCount < 3){
+					var tableContent = "<tr><td>" + county + "</td><td>" + population + "</td><td>" + confirmedCases + "</td><td>" + cases100K.toFixed(2) + "</td></tr>";
+					// add to existing table
+					countyTable += tableContent;
+					document.getElementById("coTable").innerHTML = countyTable;
+				}
+				rowCount +=1;
+			}
+
+			displayCountyTable();
+		}
+		
+		// function resets the county selection
+		function reset() {
+			// empty out table rows
+			document.getElementById("countyData").innerHTML = "";
+			rowCount = 0;
+			countyTable = `<table id="countyData"><tr><th>County</th><th>Pop.</th><th>Confirmed COVID cases</th><th>Cases/100k</th></tr>`;
+			document.getElementById("selectCounty").value = "County";
+		}
+		
+		// function to find the counties with highest and lowest incidence rate
+		function minMaxCaseRate() {
+			// initialise variables; minRate is initialised to something far higher than the population to start off
+			var minRate = 10000000000;
+			var maxRate = 0;
+			var minCounty = "";
+			var maxCounty = "";
+			
+			for (var i=0; i<countyArray.length; i++){
+				var rate = countyArray[i].attributes.PopulationProportionCovidCases;
+				if (rate < minRate) {
+					minRate = rate;
+					minCounty = countyArray[i].attributes.CountyName;
+				} else if (rate > maxRate) {
+					maxRate = rate;
+					maxCounty = countyArray[i].attributes.CountyName;
+				} else {
+					continue;
+				}
+			}
+			
+			document.getElementById("minRate").innerHTML = "Lowest cases per 100k:<br><span class='rateCountyName'>" + minCounty + "</span><span class='num'>" + minRate.toFixed(1) + "</span>";
+			document.getElementById("maxRate").innerHTML = "Highest cases per 100k:<br><span class='rateCountyName'>" + maxCounty + "</span><span class='num'>" + maxRate.toFixed(1) + "</span>";
+			
+		}
+		
+		// JSON parsing functions
+		// retrieval/parse function templates inspired by examples in Prof David Coyle's lectures
+	
+		// vaccine JSON data
+		var xmlhttp = new XMLHttpRequest();
+		var url = "https://services-eu1.arcgis.com/z6bHNio59iTqqSUY/arcgis/rest/services/COVID19_Weekly_Vaccination_Figures/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json";
+		
+		xmlhttp.onreadystatechange=function() {
+			if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+				objVax = JSON.parse(xmlhttp.responseText);
+				vaxArray = objVax.features;
+				weeksRecorded = vaxArray.length - 1;
+				vaxParsed = true;
+				updateForWeek();
+			}
+		};
+		
+		
+		xmlhttp.open("GET", url, true);
+		xmlhttp.send();
+		
+		// county JSON data
+		var xmlhttp2 = new XMLHttpRequest();
+		var url2 = "https://services1.arcgis.com/eNO7HHeQ3rUcBllm/arcgis/rest/services/Covid19CountyStatisticsHPSCIrelandOpenData/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json";
+		
+		
+		xmlhttp2.onreadystatechange=function() {
+			if (xmlhttp2.readyState==4 && xmlhttp2.status==200) {
+				objCounty = JSON.parse(xmlhttp2.responseText);
+				// slice array to remove duplicates
+				countyArray = objCounty.features;
+				countyParsed = true;
+				createDropDownMenu();
+				minMaxCaseRate();
+			}
+		};
+		
+		xmlhttp2.open("GET", url2, true);
+		xmlhttp2.send();
+	
+	</script>
+	
+</head>
+<body>
+	
+	<header class="banner">
+		<h1 class="bannerText">COVID-19 Data Hub</h1>
+	</header>
+	
+	<div id="container">
+		
+		<div id="01">	
+			<div class="h2flex-container" id="vaxh2box">
+				<h2>Vaccination data</h2>
+			</div>
+			
+			<h3 class="intro">COVID-19 vaccination rollout data</h3>
+			
+			<div class="form-flex">
+				<form id="form" action="javascript:updateForWeek()">
+					<label>Week number (2021 only):</label>
+					<input id="weekRequested" type="number">
+					<button class="button" type="button" onclick="updateForWeek();">Submit</button>
+				</form>
+			</div>	
+			
+			<div class="fields" id="vaxFields">
+				
+				<h4 id="showing"></h4>
+				<p id="totalvax2021"></p>
+				<div id="weekly"></div>
+				
+				<div class="tables" id="table"></div>
+				<div id="metricButton"></div>
+
+			</div>
+		</div>
+
+		<div id="02">
+			<div class="h2flex-container" id="countyh2box">
+				<h2>County statistics</h2>
+			</div>
+			<h3 class="intro">COVID-19 data by county in the Republic of Ireland</h3>
+			
+			<div class="fields" id="countyFields">
+				<div id="basicInfo">
+					<span id="minRate" class="rate"></span>
+					<span id="maxRate" class="rate"></span>
+				</div>
+
+				<div id="dropSelection">
+					<p>Select up to three counties below for more detailed breakdown and comparison:</p>
+					<div class="form-flex">
+						<div>
+							<span id="drop"></span>
+							<button class="button" onclick="reset();">Reset selection</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="tables" id="coTable">
+				</div>
+				
+			</div>
+		</div>
+	</div>
+			
+	<footer class="banner">
+		<h5 class="bannerText">Brought to you by Lorna Fay</h5>
+	</footer>
+	
+</body>
+</html>
